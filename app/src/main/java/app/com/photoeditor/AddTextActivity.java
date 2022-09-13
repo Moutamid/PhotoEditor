@@ -193,7 +193,7 @@ Boolean state=false;
         });
 
     }
-    public File commonDocumentDirPath(String FolderName) {
+    public static File commonDocumentDirPath(String FolderName) {
         File dir = null;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             dir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + "/" + FolderName);

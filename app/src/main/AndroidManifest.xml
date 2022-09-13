@@ -17,6 +17,9 @@
         android:theme="@style/Theme.PhotoEditor"
         tools:targetApi="31">
         <activity
+            android:name=".CompressActivity"
+            android:exported="false" />
+        <activity
             android:name=".PngToJpgConverterActivity"
             android:exported="false" />
         <activity
