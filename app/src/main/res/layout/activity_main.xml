@@ -13,7 +13,7 @@
         android:id="@+id/view"
         android:layout_width="match_parent"
         android:layout_height="128dp"
-        android:background="@drawable/custom_rectangle"
+        android:background="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -21,6 +21,7 @@
 
     <LinearLayout
         android:id="@+id/linearLayout"
+        android:layout_marginTop="@dimen/_20ssp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
@@ -49,6 +50,7 @@
                 <ImageView
                     android:id="@+id/image_view1"
                     android:layout_width="0dp"
+                    android:src="@drawable/ic_add_text_svgrepo_com"
                     android:layout_height="wrap_content"
                     app:layout_constraintBottom_toTopOf="@+id/textView1"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -61,7 +63,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
-                    android:text="Image Editor"
+                    android:text="Add text"
                     android:textAllCaps="true"
                     android:textColor="@color/black"
                     android:textSize="14sp"
@@ -95,6 +97,7 @@
                 <ImageView
                     android:id="@+id/image_view20"
                     android:layout_width="0dp"
+                    android:src="@drawable/ic_pdf_svgrepo_com"
                     android:layout_height="wrap_content"
                     app:layout_constraintBottom_toTopOf="@+id/textView20"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -154,6 +157,7 @@
                 <ImageView
                     android:id="@+id/image_view21"
                     android:layout_width="0dp"
+                    android:src="@drawable/ic_jpg_format_svgrepo_com"
                     android:layout_height="wrap_content"
                     app:layout_constraintBottom_toTopOf="@+id/textView21"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -233,8 +237,11 @@
         android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Home"
-        android:textColor="@color/white"
+        android:text="Tools"
+        android:textSize="@dimen/_20ssp"
+        android:fontFamily="serif"
+        android:textStyle="bold"
+        android:textColor="@color/black"
         app:layout_constraintBottom_toBottomOf="@+id/view"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

@@ -1,5 +1,7 @@
 package app.com.photoeditor;
 
+import static app.com.photoeditor.PngToJpgConverterActivity.savePicture;
+
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -46,7 +48,9 @@ public class PdfConverterActivity extends AppCompatActivity {
     public static final int GALLERY_PICTURE = 1;
     boolean boolean_permission;
     boolean boolean_save;
-    List<ImageModel> bitmap;
+    Bitmap bitmap;
+ //   List<ImageModel> bitmap;
+
     String fileName;
     public static final int REQUEST_PERMISSIONS = 1;
     File myfile;
@@ -59,31 +63,38 @@ public class PdfConverterActivity extends AppCompatActivity {
         binding = ActivityPdfConverterBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         listUri = new ArrayList<>();
-        bitmap = new ArrayList<>();
-        binding.imageView.setImageResource(R.drawable.ic_add_image_svgrepo_com);
+     //   bitmap = new ArrayList<>();
         fn_permission();
         binding.imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
-               intent.setType("image/*");
-                startActivityForResult(intent, 7);
+                Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                startActivityForResult(intent, GALLERY_PICTURE);
+                Hide();
             }
         });
         binding.button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (boolean_save) {
+                savePicture(fileName,bitmap,PdfConverterActivity.this);
+                Intent intent1 = new Intent(getApplicationContext(), FileNameActivity.class);
+                intent1.putExtra("fileName",fileName);
+               // intent1.putExtra("bitmap",bitmap);
+                startActivity(intent1);
 
-                    Intent intent1 = new Intent(getApplicationContext(), PdfConverterActivity.class);
-                    startActivity(intent1);
 
-                } else {
-                    createPDF();
-                }
             }
-        });
+//                if (boolean_save) {
+//
+//                    Intent intent1 = new Intent(getApplicationContext(), PdfConverterActivity.class);
+//                    startActivity(intent1);
+//
+//                } else {
+//                    createPDF();
+//                }
+//            }
+              });
+
     }
 
     private void createPdf() {
@@ -140,48 +151,85 @@ public class PdfConverterActivity extends AppCompatActivity {
 //        showDialog(myFile.toString());
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == 7) {
-            if (resultCode == RESULT_OK) {
-                if (data != null) {
-                    // Checking for selection multiple files or single.
-                    if (data.getClipData() != null) {
-                        binding.imageView.setVisibility(View.GONE);
-                        for (int index = 0; index < data.getClipData().getItemCount(); index++) {
-                            Uri selectedImage = data.getClipData().getItemAt(index).getUri();
-                            String[] filePathColumn = {MediaStore.Images.Media.DATA};
-                                   Bitmap bits=null;
-                            try {
-                                bits = MediaStore.Images.Media.getBitmap(this.getContentResolver(), data.getClipData().getItemAt(index).getUri());
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                            fileName = new File(data.getClipData().getItemAt(index).getUri().getPath()).getName();
-                            Cursor cursor = getContentResolver().query(
-                                    selectedImage, filePathColumn, null, null, null);
-                            cursor.moveToFirst();
+//    @Override
+//    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+//        super.onActivityResult(requestCode, resultCode, data);
+//        if (requestCode == 7) {
+//            if (resultCode == RESULT_OK) {
+//                if (data != null) {
+//                    // Checking for selection multiple files or single.
+//
+//                            Uri selectedImage = data.getData();
+//                            String[] filePathColumn = {MediaStore.Images.Media.DATA};
+//                                   Bitmap bits=null;
+//                            try {
+//                                bits = MediaStore.Images.Media.getBitmap(this.getContentResolver(), data.getClipData().getItemAt(index).getUri());
+//                            } catch (IOException e) {
+//                                e.printStackTrace();
+//                            }
+//                    Log.d("FORMAT",GetMimeType(PngToJpgConverterActivity.this,selectedImage));
+//                    String[] filePathColumn = {MediaStore.Images.Media.DATA};
+//                    fileName = new File(data.getData().getPath()).getName();
+//                    Cursor cursor = getContentResolver().query(
+//                            selectedImage, filePathColumn, null, null, null);
+//                    cursor.moveToFirst();
+//
+//                    int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+//                    String filePath = cursor.getString(columnIndex);
+//                    cursor.close();
+//                    bitmap = BitmapFactory.decodeFile(filePath);
+//                    binding.imageView.setImageBitmap(bitmap);
+////                            fileName = new File(data.getData().getN;
+////                            Cursor cursor = getContentResolver().query(
+////                                    selectedImage, filePathColumn, null, null, null);
+////                            cursor.moveToFirst();
+////
+////                            int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+////                            String filePath = cursor.getString(columnIndex);
+////                            cursor.close();
+////                            ImageModel datsa = new ImageModel();
+////                            datsa.bitmap = bits;
+////                            Log.d("bitmaps",bits+"");
+////                            datsa.fileName = fileName;
+////                            bitmap.add(datsa);
+////                            binding.button.setClickable(true);
+////
+////                        binding.rec.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+////                        adapter = new ImageAdapter(getApplicationContext(), bitmap);
+////                        binding.rec.setAdapter(adapter);
+//
+//                }
+//            }
+//        }
+//    }
+@Override
+protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    super.onActivityResult(requestCode, resultCode, data);
 
-                            int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-                            String filePath = cursor.getString(columnIndex);
-                            cursor.close();
-                            ImageModel datsa = new ImageModel();
-                            datsa.bitmap = bits;
-                            Log.d("bitmaps",bits+"");
-                            datsa.fileName = fileName;
-                            bitmap.add(datsa);
-                            binding.button.setClickable(true);
-                        }
-                        binding.rec.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
-                        adapter = new ImageAdapter(getApplicationContext(), bitmap);
-                        binding.rec.setAdapter(adapter);
-                    }
-                }
-            }
+    if (requestCode == GALLERY_PICTURE && resultCode == RESULT_OK) {
+
+        if (resultCode == RESULT_OK) {
+            Uri selectedImage = data.getData();
+
+                Log.d("FORMAT",GetMimeType(PdfConverterActivity.this,selectedImage));
+                String[] filePathColumn = {MediaStore.Images.Media.DATA};
+                fileName = new File(data.getData().getPath()).getName();
+                Cursor cursor = getContentResolver().query(
+                        selectedImage, filePathColumn, null, null, null);
+                cursor.moveToFirst();
+
+                int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+                String filePath = cursor.getString(columnIndex);
+                cursor.close();
+                bitmap = BitmapFactory.decodeFile(filePath);
+                binding.imageView4.setImageBitmap(bitmap);
+                Hide();
+
+
+
         }
     }
-
+}
     private void fn_permission() {
         if ((ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) ||
                 (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)) {
@@ -284,7 +332,7 @@ public class PdfConverterActivity extends AppCompatActivity {
         alert11.show();
     }
 
-    public void share(String path) {
+    public  void share(String path) {
         Intent sharingIntent = new Intent(Intent.ACTION_SEND);
         Uri screenshotUri = Uri.parse(path);
         sharingIntent.setType("application/pdf");
@@ -306,64 +354,71 @@ public class PdfConverterActivity extends AppCompatActivity {
         return strMimeType;
     }
 
-    private void createPDF() {
-
-            Bitmap bitmaps;
-            PdfDocument document = new PdfDocument();
-            //  int height = 842;
-            //int width = 595;
-            int height = 1010;
-            int width = 714;
-            int reqH, reqW;
-            reqW = width;
-
-            for (int i = 0; i < bitmap.size(); i++) {
-                //  bitmap = BitmapFactory.decodeFile(array.get(i));
-                String[] filePathColumn = {MediaStore.Images.Media.DATA};
-
-                reqH = width * bitmap.get(i).getBitmap().getHeight() / bitmap.get(i).getBitmap().getWidth();
-                Log.e("reqH", "=" + reqH);
-                if (reqH < height) {
-                    //  bitmap = Bitmap.createScaledBitmap(bitmap, reqW, reqH, true);
-                } else {
-                    reqH = height;
-                    reqW = height * bitmap.get(i).getBitmap().getWidth() / bitmap.get(i).getBitmap().getHeight();
-                    Log.e("reqW", "=" + reqW);
-                    //   bitmap = Bitmap.createScaledBitmap(bitmap, reqW, reqH, true);
-                }
-                // Compress image by decreasing quality
-                // ByteArrayOutputStream out = new ByteArrayOutputStream();
-                //  bitmap.compress(Bitmap.CompressFormat.WEBP, 50, out);
-                //    bitmap = BitmapFactory.decodeStream(new ByteArrayInputStream(out.toByteArray()));
-                //bitmap = bitmap.copy(Bitmap.Config.RGB_565, false);
-                //Create an A4 sized page 595 x 842 in Postscript points.
-                //PdfDocument.PageInfo pageInfo = new PdfDocument.PageInfo.Builder(595, 842, 1).create();
-                PdfDocument.PageInfo pageInfo = new PdfDocument.PageInfo.Builder(reqW, reqH, 1).create();
-                PdfDocument.Page page = document.startPage(pageInfo);
-                Canvas canvas = page.getCanvas();
-
-                Log.e("PDF", "pdf = " + bitmap.get(i).getBitmap().getWidth() + "x" + bitmap.get(i).getBitmap().getHeight());
-                canvas.drawBitmap(bitmap.get(i).getBitmap(), 0, 0, null);
-
-                document.finishPage(page);
-            }
-            File myFile = new File(commonDocumentDirPath("PdfGenerator"), fileName + ".pdf");
-
-            FileOutputStream fos;
-            try {
-                fos = new FileOutputStream(myFile);
-                document.writeTo(fos);
-                document.close();
-                fos.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-           showDialog(fileName.toString());
-
-
-
-        };
+//    private void createPDF() {
+//
+//            Bitmap bitmaps;
+//            PdfDocument document = new PdfDocument();
+//            //  int height = 842;
+//            //int width = 595;
+//            int height = 1010;
+//            int width = 714;
+//            int reqH, reqW;
+//            reqW = width;
+//
+//            for (int i = 0; i < bitmap.size(); i++) {
+//                //  bitmap = BitmapFactory.decodeFile(array.get(i));
+//                String[] filePathColumn = {MediaStore.Images.Media.DATA};
+//
+//                reqH = width * bitmap.get(i).getBitmap().getHeight() / bitmap.get(i).getBitmap().getWidth();
+//                Log.e("reqH", "=" + reqH);
+//                if (reqH < height) {
+//                    //  bitmap = Bitmap.createScaledBitmap(bitmap, reqW, reqH, true);
+//                } else {
+//                    reqH = height;
+//                    reqW = height * bitmap.get(i).getBitmap().getWidth() / bitmap.get(i).getBitmap().getHeight();
+//                    Log.e("reqW", "=" + reqW);
+//                    //   bitmap = Bitmap.createScaledBitmap(bitmap, reqW, reqH, true);
+//                }
+//                // Compress image by decreasing quality
+//                // ByteArrayOutputStream out = new ByteArrayOutputStream();
+//                //  bitmap.compress(Bitmap.CompressFormat.WEBP, 50, out);
+//                //    bitmap = BitmapFactory.decodeStream(new ByteArrayInputStream(out.toByteArray()));
+//                //bitmap = bitmap.copy(Bitmap.Config.RGB_565, false);
+//                //Create an A4 sized page 595 x 842 in Postscript points.
+//                //PdfDocument.PageInfo pageInfo = new PdfDocument.PageInfo.Builder(595, 842, 1).create();
+//                PdfDocument.PageInfo pageInfo = new PdfDocument.PageInfo.Builder(reqW, reqH, 1).create();
+//                PdfDocument.Page page = document.startPage(pageInfo);
+//                Canvas canvas = page.getCanvas();
+//
+//                Log.e("PDF", "pdf = " + bitmap.get(i).getBitmap().getWidth() + "x" + bitmap.get(i).getBitmap().getHeight());
+//                canvas.drawBitmap(bitmap.get(i).getBitmap(), 0, 0, null);
+//
+//                document.finishPage(page);
+//            }
+//            File myFile = new File(commonDocumentDirPath("PdfGenerator"), fileName + ".pdf");
+//
+//            FileOutputStream fos;
+//            try {
+//                fos = new FileOutputStream(myFile);
+//                document.writeTo(fos);
+//                document.close();
+//                fos.close();
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//
+//           showDialog(fileName.toString());
+//
+//
+//
+//        };
+    public void Hide(){
+        if(bitmap!=null){
+            binding.imageView5.setVisibility(View.GONE);
+            binding.textView3.setVisibility(View.GONE);
+            binding.textView4.setVisibility(View.GONE);
+        }
+    }
 
     }
 

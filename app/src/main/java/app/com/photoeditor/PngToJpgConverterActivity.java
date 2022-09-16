@@ -20,6 +20,7 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.ObjectOutputStream;
 
 import app.com.photoeditor.databinding.ActivityPngToJpgConverterBinding;
 
@@ -34,12 +35,12 @@ public class PngToJpgConverterActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityPngToJpgConverterBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        binding.imageView.setImageResource(R.drawable.ic_add_image_svgrepo_com);
         binding.imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                 startActivityForResult(intent, GALLERY_PICTURE);
+                Hide();
             }
         });
        binding.button.setOnClickListener(new View.OnClickListener() {
@@ -49,7 +50,13 @@ public class PngToJpgConverterActivity extends AppCompatActivity {
                    Utils.toast(getApplicationContext(),"please Add Image");
                }
                else{
-                   saveImage();
+                   savePicture(fileName,bitmap,PngToJpgConverterActivity.this);
+                   Intent intent1 = new Intent(getApplicationContext(), JpgFileNameActivity.class);
+                   intent1.putExtra("fileName",fileName);
+              //     intent1.putExtra("bitmap",bitmap);
+
+                   startActivity(intent1);
+                   //  saveImage();
                }
            }
        });
@@ -80,7 +87,8 @@ public class PngToJpgConverterActivity extends AppCompatActivity {
                     String filePath = cursor.getString(columnIndex);
                     cursor.close();
                     bitmap = BitmapFactory.decodeFile(filePath);
-                    binding.imageView.setImageBitmap(bitmap);
+                    binding.imageView4.setImageBitmap(bitmap);
+                    Hide();
 
                 }
 
@@ -181,4 +189,28 @@ public class PngToJpgConverterActivity extends AppCompatActivity {
         sharingIntent.putExtra(Intent.EXTRA_STREAM, screenshotUri);
         startActivity(Intent.createChooser(sharingIntent, "Share pdf using"));
     }
+     static void savePicture(String filename, Bitmap b, Context ctx){
+        try {
+            ObjectOutputStream oos;
+            FileOutputStream out;// = new FileOutputStream(filename);
+            out = ctx.openFileOutput(filename, Context.MODE_PRIVATE);
+            oos = new ObjectOutputStream(out);
+            b.compress(Bitmap.CompressFormat.PNG, 100, oos);
+
+            oos.close();
+            oos.notifyAll();
+            out.notifyAll();
+            out.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    public void Hide(){
+        if(bitmap!=null){
+            binding.imageView5.setVisibility(View.GONE);
+            binding.textView3.setVisibility(View.GONE);
+            binding.textView4.setVisibility(View.GONE);
+        }
+    }
+
 }

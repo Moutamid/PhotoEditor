@@ -1,4 +1,13 @@
 <resources>
     <string name="app_name">PhotoEditor</string>
     <string name="click_to_set_text">Click to set Text</string>
+    <string-array name="orientation">
+
+        <item>Vertical</item>
+        <item>Horizontal</item>
+        <item>Auto</item>
+
+
+    </string-array>
+    <string name="select_some_images_first_on_the_add_button_below">Select some images first on the add button below</string>
 </resources>
