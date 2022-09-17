@@ -7,9 +7,9 @@
     android:background="@color/newBg"
     tools:context=".AddTextActivity">
 
-    <RelativeLayout
+    <androidx.cardview.widget.CardView
         android:id="@+id/cardView"
-        android:layout_width="wrap_content"
+        android:layout_width="@dimen/_150sdp"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="30sp"
         android:layout_marginTop="50dp"
@@ -18,13 +18,13 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             >
 
             <ImageView
                 android:id="@+id/imageView"
-                android:layout_width="wrap_content"
+                android:layout_width="150dp"
                 android:layout_height="150dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -35,7 +35,7 @@
                 android:id="@+id/tvName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="@dimen/_2sdp"
                 android:text="@string/click_to_set_text"
                 android:textColor="@color/black"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -54,7 +54,7 @@
                 app:layout_constraintTop_toBottomOf="@+id/tvName" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-    </RelativeLayout>
+    </androidx.cardview.widget.CardView>
 
     <Button
         android:id="@+id/button"
