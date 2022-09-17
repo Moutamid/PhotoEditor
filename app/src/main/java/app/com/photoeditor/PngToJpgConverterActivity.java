@@ -35,6 +35,7 @@ public class PngToJpgConverterActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityPngToJpgConverterBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        binding.button.setText("Convert To Jpg");
         binding.imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

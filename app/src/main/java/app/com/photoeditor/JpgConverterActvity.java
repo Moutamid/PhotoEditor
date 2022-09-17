@@ -44,6 +44,7 @@ public class JpgConverterActvity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityGeneratePdfBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        binding.imageView3.setImageResource(R.drawable.ic_baseline_insert_drive_file_24);
         Intent intent = getIntent();
         String FileName = intent.getStringExtra("fileName");
         getPreviousData();

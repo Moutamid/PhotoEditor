@@ -22,7 +22,10 @@ public class JpgFileNameActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityFileNameBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        binding.button2.setText("Convert To Jpg");
+        binding.imageView2.setImageResource(R.drawable.ic_baseline_insert_drive_file_24);
         Intent intent = getIntent();
+
         Bitmap bitmap = (Bitmap) intent.getParcelableExtra("bitmap");
         String fileName = intent.getStringExtra("fileName");
 
