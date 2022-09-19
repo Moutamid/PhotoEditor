@@ -108,14 +108,22 @@ Bitmap bitmap;
         }catch (Exception ex){
           binding.tvName.setText(ex+"");
         }
-        if(Utils.resetExternalStorageMedia(AddTextActivity.this)){
-            Utils.notifyMediaScannerService(AddTextActivity.this,myFile.getPath());
-        }
+       refreshGallery(myFile);
 
 
     }
-    public void save(){
-
+    public void refreshGallery(File f) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            Intent mediaScanIntent = new Intent(
+                    Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+            Uri fileUri = Uri.fromFile(f); //out is your output file
+            mediaScanIntent.setData(fileUri);
+            sendBroadcast(mediaScanIntent);
+        } else {
+            sendBroadcast(new Intent(
+                    Intent.ACTION_MEDIA_MOUNTED,
+                    Uri.parse("file://" + Environment.getExternalStorageDirectory())));
+        }
     }
     private void saveImage(Bitmap finalBitmap, String image_name) {
 

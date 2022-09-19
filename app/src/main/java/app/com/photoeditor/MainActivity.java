@@ -24,12 +24,7 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(MainActivity.this,AddTextFormActvitity.class));
             }
         });
-        findViewById(R.id.image_view1).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startActivity(new Intent(MainActivity.this,AddTextActivity.class));
-            }
-        });
+
         findViewById(R.id.textView20).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

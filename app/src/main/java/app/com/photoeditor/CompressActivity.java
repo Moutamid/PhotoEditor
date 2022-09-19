@@ -11,6 +11,7 @@ import android.Manifest;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
@@ -114,11 +115,20 @@ public class CompressActivity extends AppCompatActivity {
         } catch (Exception ex) {
             //  binding.tvName.setText(ex+"");
         }
-        if(Utils.resetExternalStorageMedia(CompressActivity.this)){
-            Utils.notifyMediaScannerService(CompressActivity.this,myFile.getPath());
+        refreshGallery(myFile);
+    }
+    public void refreshGallery(File f) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            Intent mediaScanIntent = new Intent(
+                    Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+            Uri fileUri = Uri.fromFile(f); //out is your output file
+            mediaScanIntent.setData(fileUri);
+            sendBroadcast(mediaScanIntent);
+        } else {
+            sendBroadcast(new Intent(
+                    Intent.ACTION_MEDIA_MOUNTED,
+                    Uri.parse("file://" + Environment.getExternalStorageDirectory())));
         }
-
-
     }
 
     @Override

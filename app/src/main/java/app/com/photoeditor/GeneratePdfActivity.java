@@ -75,9 +75,7 @@ public class GeneratePdfActivity extends AppCompatActivity {
                 SharedPreferences.Editor myEdit = sharedPreferences.edit();
                 myEdit.putBoolean(FileName, true);
                 myEdit.commit();
-                if(Utils.resetExternalStorageMedia(GeneratePdfActivity.this)){
-                    Utils.notifyMediaScannerService(GeneratePdfActivity.this,filePath_);
-                }
+
             }
         });
         binding.imgCancel.setOnClickListener(new View.OnClickListener() {

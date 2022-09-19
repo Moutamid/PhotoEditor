@@ -160,11 +160,22 @@ public class JpgConverterActvity extends AppCompatActivity {
         }catch (Exception ex){
             Toast.makeText(this, ex+"", Toast.LENGTH_SHORT).show();
         }
-        if(Utils.resetExternalStorageMedia(JpgConverterActvity.this)){
-            Utils.notifyMediaScannerService(JpgConverterActvity.this,myFile.getPath());
+      refreshGallery(myFile);
+
+
+    }
+    public void refreshGallery(File f) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            Intent mediaScanIntent = new Intent(
+                    Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+            Uri fileUri = Uri.fromFile(f); //out is your output file
+            mediaScanIntent.setData(fileUri);
+            sendBroadcast(mediaScanIntent);
+        } else {
+            sendBroadcast(new Intent(
+                    Intent.ACTION_MEDIA_MOUNTED,
+                    Uri.parse("file://" + Environment.getExternalStorageDirectory())));
         }
-
-
     }
     public  void share(String path) {
         Intent sharingIntent = new Intent(Intent.ACTION_SEND);

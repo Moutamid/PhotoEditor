@@ -1,6 +1,7 @@
 package app.com.photoeditor;
 
 import static app.com.photoeditor.AddTextActivity.commonDocumentDirPath;
+import static app.com.photoeditor.GeneratePdfActivity.RotateBitmap;
 import static app.com.photoeditor.GeneratePdfActivity.byteSizeOf;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -118,9 +119,11 @@ public class FileNameActivity extends AppCompatActivity {
                 if (orientation.equals("Default")) {
                     bitmap = RotateBitmap(bitmap, 0);
                 } else if (orientation.equals("90 degree left")) {
+
                     bitmap = RotateBitmap(bitmap, -90);
 
                 } else if (orientation.equals("90 degree right")) {
+
                     bitmap = RotateBitmap(bitmap, 90);
                 }
                 binding.imageView2.setImageBitmap(bitmap);
@@ -226,20 +229,13 @@ public class FileNameActivity extends AppCompatActivity {
             Log.e("reqW", "=" + reqW);
             bitmaps = Bitmap.createScaledBitmap(bitmap, reqW, reqH, true);
         }
-            if (orientation.equals("Default")) {
-                bitmaps = RotateBitmap(bitmap, 0);
-            } else if (orientation.equals("90 degree left")) {
-                bitmaps = RotateBitmap(bitmap, -90);
 
-            } else if (orientation.equals("90 degree right")) {
-                bitmaps = RotateBitmap(bitmap, 90);
-            }
         PdfDocument.PageInfo pageInfo = new PdfDocument.PageInfo.Builder(reqW, reqH, 1).create();
         PdfDocument.Page page = document.startPage(pageInfo);
         Canvas canvas = page.getCanvas();
         canvas.drawBitmap(bitmaps, 0, 0, null);
         document.finishPage(page);
-        PdfFile = new File(commonDocumentDirPath("PdfGenerator"),binding.tvFileName.getText().toString()+".pdf");
+        PdfFile = new File(commonDocumentDirPath("PdfGenerator"), binding.tvFileName.getText().toString() + ".pdf");
         FileOutputStream fos;
         try {
             fos = new FileOutputStream(PdfFile);
@@ -260,4 +256,15 @@ public class FileNameActivity extends AppCompatActivity {
         return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
     }
 
+    public void rotate() {
+        if (orientation.equals("Default")) {
+            bitmap = RotateBitmap(bitmap, 0);
+        } else if (orientation.equals("90 degree left")) {
+            bitmap = RotateBitmap(bitmap, -90);
+
+        } else if (orientation.equals("90 degree right")) {
+            bitmap = RotateBitmap(bitmap, 90);
+        }
+
+    }
 }

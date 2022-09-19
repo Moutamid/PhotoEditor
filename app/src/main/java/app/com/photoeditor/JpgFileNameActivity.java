@@ -36,25 +36,27 @@ import app.com.photoeditor.databinding.ActivityFileNameBinding;
 public class JpgFileNameActivity extends AppCompatActivity {
     ActivityFileNameBinding binding;
     Boolean compress = false, whitemargin = false, pass = false;
-    String orientation,filePath_;;
-    int compressSize=0;
+    String orientation, filePath_;
+    ;
+    int compressSize = 0;
     Bitmap bitmap;
     File newFile;
     File PdfFile;
     String fileName;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityFileNameBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         Intent intent = getIntent();
-
+        binding.button2.setText("Convert To Jpg");
         Bitmap bitmap = (Bitmap) intent.getParcelableExtra("bitmap");
         fileName = intent.getStringExtra("fileName");
         filePath_ = intent.getStringExtra("filePath");
         setCompress(fileName, filePath_, 100);
         binding.textView13.setText(newFile.length() / 1024 + "KB");
-        binding.tvFileName.setText("PngToJpg_"+fileName);
+        binding.tvFileName.setText("PngToJpg_" + fileName);
         binding.button2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -70,11 +72,11 @@ public class JpgFileNameActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent intent1 = new Intent(getApplicationContext(), JpgConverterActvity.class);
                 intent1.putExtra("fileName", fileName);
-                intent1.putExtra("whiteMargin",whitemargin);
-                intent1.putExtra("pass",pass);
-                intent1.putExtra("compresss",compress);
-                intent1.putExtra("compressSize",compressSize);
-                intent1.putExtra("orientation",orientation);
+                intent1.putExtra("whiteMargin", whitemargin);
+                intent1.putExtra("pass", pass);
+                intent1.putExtra("compresss", compress);
+                intent1.putExtra("compressSize", compressSize);
+                intent1.putExtra("orientation", orientation);
                 intent1.putExtra("filePath", newFile.getPath());
                 //        intent1.putExtra("bitmap", bitmap);
                 startActivity(intent1);
@@ -83,7 +85,7 @@ public class JpgFileNameActivity extends AppCompatActivity {
         binding.seekBar2.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                compressSize=i;
+                compressSize = i;
                 setCompress(fileName, filePath_, i);
             }
 
@@ -121,7 +123,7 @@ public class JpgFileNameActivity extends AppCompatActivity {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 orientation = adapterView.getSelectedItem().toString();
-             rotate();
+                rotate();
             }
 
             @Override
@@ -131,6 +133,7 @@ public class JpgFileNameActivity extends AppCompatActivity {
         });
 
     }
+
     public void setCompress(String fileName, String filePath_, int quality) {
         File oldFile = new File(filePath_);
         newFile = new CompressHelper.Builder(this)
@@ -147,6 +150,7 @@ public class JpgFileNameActivity extends AppCompatActivity {
         binding.textView13.setText(newFile.length() / 1024 + "KB");
 
     }
+
     public void chk(Boolean b) {
         if (b) {
             String filePath = newFile.getPath();
@@ -170,6 +174,7 @@ public class JpgFileNameActivity extends AppCompatActivity {
 
 
     }
+
     public Bitmap loadPicture(String filename) {
         Bitmap b = null;
 
@@ -197,6 +202,7 @@ public class JpgFileNameActivity extends AppCompatActivity {
 
         return b;
     }
+
     public void chks(Boolean b) {
         if (b) {
             String filePath = newFile.getPath();
@@ -211,17 +217,17 @@ public class JpgFileNameActivity extends AppCompatActivity {
         binding.imageView2.setImageBitmap(bitmap);
 
 
-
     }
-public  void rotate(){
-    if (orientation.equals("Default")) {
-        bitmap = RotateBitmap(bitmap, 0);
-    } else if (orientation.equals("90 degree left")) {
-        bitmap = RotateBitmap(bitmap, -90);
 
-    } else if (orientation.equals("90 degree right")) {
-        bitmap = RotateBitmap(bitmap, 90);
+    public void rotate() {
+        if (orientation.equals("Default")) {
+            bitmap = RotateBitmap(bitmap, 0);
+        } else if (orientation.equals("90 degree left")) {
+            bitmap = RotateBitmap(bitmap, -90);
+
+        } else if (orientation.equals("90 degree right")) {
+            bitmap = RotateBitmap(bitmap, 90);
+        }
+        binding.imageView2.setImageBitmap(bitmap);
     }
-    binding.imageView2.setImageBitmap(bitmap);
-}
 }
