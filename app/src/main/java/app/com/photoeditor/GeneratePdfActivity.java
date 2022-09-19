@@ -42,12 +42,13 @@ public class GeneratePdfActivity extends AppCompatActivity {
     String outputFolder;
     String filePath_;
     File newFile;
-SharedPreferences sharedPreferences;
+    SharedPreferences sharedPreferences;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityGeneratePdfBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        sharedPreferences = getSharedPreferences("PdfFiles",MODE_PRIVATE);
         Intent intent = getIntent();
         String FileName = intent.getStringExtra("fileName");
         filePath_ = intent.getStringExtra("filePath");
@@ -71,6 +72,12 @@ SharedPreferences sharedPreferences;
                 state = true;
                 Utils.toast(getApplicationContext(),"Pdf Generated Succesfully");
                 binding.textView17.setText("Saved in:"+filePath_);
+                SharedPreferences.Editor myEdit = sharedPreferences.edit();
+                myEdit.putBoolean(FileName, true);
+                myEdit.commit();
+                if(Utils.resetExternalStorageMedia(GeneratePdfActivity.this)){
+                    Utils.notifyMediaScannerService(GeneratePdfActivity.this,filePath_);
+                }
             }
         });
         binding.imgCancel.setOnClickListener(new View.OnClickListener() {
@@ -147,20 +154,15 @@ SharedPreferences sharedPreferences;
             bitmap = addWhiteBorder(bitmap, 5);
         }
         canvas.drawBitmap(bitmap, 0, 0, null);
-        if (pass) {
 
-        }
-        if (orientation == "Vertical") {
-            bitmap = GetRotatedBitmap(bitmap, 90);
-        }
-        if (orientation == "Horizontal") {
-            bitmap = GetRotatedBitmap(bitmap, 180);
-        }
 
 
         document.finishPage(page);
 
         File myFile = new File(commonDocumentDirPath("PdfGenerator"), binding.tvFileName.getText().toString() + ".pdf");
+        if(myFile.exists()){
+            myFile = new File(commonDocumentDirPath("PdfGenerator"), binding.tvFileName.getText().toString()+"_1" + ".pdf");
+        }
         outputFolder = myFile.toString();
         FileOutputStream fos;
         try {

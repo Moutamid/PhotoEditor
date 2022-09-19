@@ -1,10 +1,12 @@
 package app.com.photoeditor;
 
 import static app.com.photoeditor.AddTextActivity.commonDocumentDirPath;
+import static app.com.photoeditor.GeneratePdfActivity.RotateBitmap;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -39,6 +41,9 @@ public class JpgConverterActvity extends AppCompatActivity {
     String orientation;
     String outputFolder;
     String fileName;
+    String filePath_;
+    File newFile;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,15 +56,31 @@ public class JpgConverterActvity extends AppCompatActivity {
         getPreviousData();
         bitmap=loadPicture(FileName);
         fileName=intent.getStringExtra("fileName");
+        filePath_ = intent.getStringExtra("filePath");
+        newFile=new File(filePath_) ;
+        getPreviousData();
+        if(Compress){
+            binding.tvFileSize.setText(newFile.length() / 1024 + "Kb");
+            String filePath = newFile.getPath();
+            bitmap = BitmapFactory.decodeFile(filePath);
+        }
+        else {
+            bitmap = loadPicture(FileName);
+            binding.tvFileSize.setText(byteSizeOf(bitmap)/1024+"Kb");
+        }
         binding.tvFileName.setText("PngToJpg_"+FileName);
-        binding.tvFileSize.setText(byteSizeOf(bitmap)/1024+"Kb");
+
+
         java.util.Date date = new java.util.Date();
         binding.tvDate.setText(date + "");
         binding.imgSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 state = true;
+                Utils.toast(getApplicationContext(),"Jpg Generated Succesfully");
                 saveImage();
+                binding.textView17.setText("Saved in:"+filePath_);
+
             }
         });
         binding.imgCancel.setOnClickListener(new View.OnClickListener() {
@@ -100,11 +121,11 @@ public class JpgConverterActvity extends AppCompatActivity {
 
     public void saveImage(){
         String root= Environment.getExternalStorageDirectory().getAbsolutePath();
-        if (Compress) {
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            bitmap.compress(Bitmap.CompressFormat.JPEG, compressSize, out);
-
-        }
+//        if (Compress) {
+//            ByteArrayOutputStream out = new ByteArrayOutputStream();
+//            bitmap.compress(Bitmap.CompressFormat.JPEG, compressSize, out);
+//
+//        }
         if (whiteMargin) {
             bitmap = addWhiteBorder(bitmap,5);
         }
@@ -118,17 +139,29 @@ public class JpgConverterActvity extends AppCompatActivity {
         outputFolder=myFile.toString();
 
         if(myFile.exists()){
-            Utils.toast(getApplicationContext(),"this image already exists");
-            myFile.delete();
+            myFile=new File(commonDocumentDirPath("PngToJpg"),"PngToJpg_"+fileName+"_1"+".jpg");
         }
         try {
             FileOutputStream fileOutputStream = new FileOutputStream(myFile);
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream);
+            if (orientation.equals("Default")) {
+                bitmap = RotateBitmap(bitmap, 0);
+            } else if (orientation.equals("90 degree left")) {
+                bitmap = RotateBitmap(bitmap, -90);
+
+            } else if (orientation.equals("90 degree right")) {
+                bitmap = RotateBitmap(bitmap, 90);
+            }
+            if(Compress) {
+                bitmap.compress(Bitmap.CompressFormat.JPEG, compressSize, fileOutputStream);
+            }
             fileOutputStream.flush();
             fileOutputStream.close();
             Utils.toast(getApplicationContext(),"Image Converted Succesfully");
         }catch (Exception ex){
             Toast.makeText(this, ex+"", Toast.LENGTH_SHORT).show();
+        }
+        if(Utils.resetExternalStorageMedia(JpgConverterActvity.this)){
+            Utils.notifyMediaScannerService(JpgConverterActvity.this,myFile.getPath());
         }
 
 

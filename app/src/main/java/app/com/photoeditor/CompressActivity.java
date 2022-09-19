@@ -24,6 +24,7 @@ import java.io.FileOutputStream;
 import app.com.photoeditor.databinding.ActivityCompressBinding;
 import id.zelory.compressor.Compressor;
 import id.zelory.compressor.constraint.Compression;
+import in.mayanknagwanshi.imagepicker.ImageSelectActivity;
 
 public class CompressActivity extends AppCompatActivity {
     ActivityCompressBinding binding;
@@ -59,10 +60,12 @@ public class CompressActivity extends AppCompatActivity {
         binding.imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent galleryIntent = new Intent();
-                galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
-                galleryIntent.setType("image/*");
-                startActivityForResult(galleryIntent, 2);
+                Intent intent = new Intent(CompressActivity.this, ImageSelectActivity.class);
+                intent.putExtra(ImageSelectActivity.FLAG_COMPRESS, false);//default is true
+                intent.putExtra(ImageSelectActivity.FLAG_CAMERA, false);//default is true
+                intent.putExtra(ImageSelectActivity.FLAG_GALLERY, true);//default is true
+                intent.putExtra(ImageSelectActivity.FLAG_CROP, true);//default is false
+                startActivityForResult(intent, 2);
             }
         });
         binding.button.setOnClickListener(new View.OnClickListener() {
@@ -110,6 +113,9 @@ public class CompressActivity extends AppCompatActivity {
             Utils.toast(getApplicationContext(), "Image Compressed Succesfully");
         } catch (Exception ex) {
             //  binding.tvName.setText(ex+"");
+        }
+        if(Utils.resetExternalStorageMedia(CompressActivity.this)){
+            Utils.notifyMediaScannerService(CompressActivity.this,myFile.getPath());
         }
 
 

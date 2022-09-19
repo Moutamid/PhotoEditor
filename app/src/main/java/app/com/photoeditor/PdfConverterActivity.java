@@ -1,8 +1,6 @@
 package app.com.photoeditor;
 
 
-import static app.com.photoeditor.AddTextActivity.commonDocumentDirPath;
-
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -13,6 +11,7 @@ import android.Manifest;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -39,8 +38,10 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import app.com.photoeditor.databinding.ActivityPdfConverterBinding;
+import in.mayanknagwanshi.imagepicker.ImageSelectActivity;
 
 public class PdfConverterActivity extends AppCompatActivity {
     ActivityPdfConverterBinding binding;
@@ -68,9 +69,12 @@ public class PdfConverterActivity extends AppCompatActivity {
         binding.imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                Intent intent = new Intent(PdfConverterActivity.this, ImageSelectActivity.class);
+                intent.putExtra(ImageSelectActivity.FLAG_COMPRESS, false);//default is true
+                intent.putExtra(ImageSelectActivity.FLAG_CAMERA, false);//default is true
+                intent.putExtra(ImageSelectActivity.FLAG_GALLERY, true);//default is true
+                intent.putExtra(ImageSelectActivity.FLAG_CROP, true);//default is false
                 startActivityForResult(intent, GALLERY_PICTURE);
-                Hide();
             }
         });
         binding.button.setOnClickListener(new View.OnClickListener() {
@@ -78,6 +82,7 @@ public class PdfConverterActivity extends AppCompatActivity {
             public void onClick(View view) {
                 savePicture(fileName, bitmap, PdfConverterActivity.this);
                 Intent intent1 = new Intent(getApplicationContext(), FileNameActivity.class);
+
                 intent1.putExtra("fileName", fileName);
                 intent1.putExtra("filePath", filePath_);
 
@@ -95,7 +100,7 @@ public class PdfConverterActivity extends AppCompatActivity {
                     FileOutputStream out;// = new FileOutputStream(filename);
                     out = ctx.openFileOutput(filename, Context.MODE_PRIVATE);
                     oos = new ObjectOutputStream(out);
-                    b.compress(Bitmap.CompressFormat.JPEG, 50, oos);
+                    b.compress(Bitmap.CompressFormat.JPEG, 100, oos);
                     oos.close();
                     oos.notifyAll();
                     out.notifyAll();
@@ -229,28 +234,29 @@ public class PdfConverterActivity extends AppCompatActivity {
         if (requestCode == GALLERY_PICTURE && resultCode == RESULT_OK) {
 
             if (resultCode == RESULT_OK) {
-                Uri selectedImage = data.getData();
-
-                Log.d("FORMAT", GetMimeType(PdfConverterActivity.this, selectedImage));
+                String filePaths = data.getStringExtra(ImageSelectActivity.RESULT_FILE_PATH);
+//                Uri selectedImage =  Uri.fromFile(new File(filePaths));
+//                Log.d("FORMAT", GetMimeType(PdfConverterActivity.this, selectedImage));
                 String[] filePathColumn = {MediaStore.Images.Media.DATA};
-                fileName = new File(data.getData().getPath()).getName();
-                File chk = new File(commonDocumentDirPath("PdfGenerator").toString());
-                Log.d("FileName", chk.getPath());
-                if (chk.exists()) {
-                    Log.d("ChkFile", "exists");
-//                    fileName = new File(data.getData().getPath()).getName() + "_1";
+                fileName = new File(filePaths).getName();
+                Random random=new Random();
+                fileName=fileName+"_"+random.nextInt(100);
+                SharedPreferences sh = getSharedPreferences("PdfFiles", MODE_PRIVATE);
+                if(sh.getBoolean(fileName,false)){
+                  fileName=fileName+"_1"  ;
                 }
+                File chk=new File(fileName);
 
-                Cursor cursor = getContentResolver().query(
-                        selectedImage, filePathColumn, null, null, null);
-                cursor.moveToFirst();
-
-                int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-                String filePath = cursor.getString(columnIndex);
-                cursor.close();
-                bitmap = BitmapFactory.decodeFile(filePath);
+//                Cursor cursor = getContentResolver().query(
+//                        selectedImage, filePathColumn, null, null, null);
+//                cursor.moveToFirst();
+//
+//                int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+//                String filePath = cursor.getString(columnIndex);
+//                cursor.close();
+                bitmap = BitmapFactory.decodeFile(filePaths);
                 binding.imageView4.setImageBitmap(bitmap);
-                filePath_ = filePath;
+                filePath_=filePaths;
                 Hide();
 
 

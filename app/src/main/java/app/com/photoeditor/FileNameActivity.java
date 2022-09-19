@@ -226,14 +226,14 @@ public class FileNameActivity extends AppCompatActivity {
             Log.e("reqW", "=" + reqW);
             bitmaps = Bitmap.createScaledBitmap(bitmap, reqW, reqH, true);
         }
-        if (orientation.equals("Default")) {
-            bitmaps = RotateBitmap(bitmap, 0);
-        } else if (orientation.equals("90 degree left")) {
-            bitmaps = RotateBitmap(bitmap, -90);
+            if (orientation.equals("Default")) {
+                bitmaps = RotateBitmap(bitmap, 0);
+            } else if (orientation.equals("90 degree left")) {
+                bitmaps = RotateBitmap(bitmap, -90);
 
-        } else if (orientation.equals("90 degree right")) {
-            bitmaps = RotateBitmap(bitmap, 90);
-        }
+            } else if (orientation.equals("90 degree right")) {
+                bitmaps = RotateBitmap(bitmap, 90);
+            }
         PdfDocument.PageInfo pageInfo = new PdfDocument.PageInfo.Builder(reqW, reqH, 1).create();
         PdfDocument.Page page = document.startPage(pageInfo);
         Canvas canvas = page.getCanvas();
@@ -241,7 +241,6 @@ public class FileNameActivity extends AppCompatActivity {
         document.finishPage(page);
         PdfFile = new File(commonDocumentDirPath("PdfGenerator"),binding.tvFileName.getText().toString()+".pdf");
         FileOutputStream fos;
-
         try {
             fos = new FileOutputStream(PdfFile);
             document.writeTo(fos);

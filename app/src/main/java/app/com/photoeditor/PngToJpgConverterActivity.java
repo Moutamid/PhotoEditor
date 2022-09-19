@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -23,13 +24,14 @@ import java.io.FileOutputStream;
 import java.io.ObjectOutputStream;
 
 import app.com.photoeditor.databinding.ActivityPngToJpgConverterBinding;
+import in.mayanknagwanshi.imagepicker.ImageSelectActivity;
 
 public class PngToJpgConverterActivity extends AppCompatActivity {
     ActivityPngToJpgConverterBinding binding;
     String fileName;
     Bitmap bitmap;
     public static final int GALLERY_PICTURE = 1;
-
+    String filePath_;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,7 +41,11 @@ public class PngToJpgConverterActivity extends AppCompatActivity {
         binding.imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                Intent intent = new Intent(PngToJpgConverterActivity.this, ImageSelectActivity.class);
+                intent.putExtra(ImageSelectActivity.FLAG_COMPRESS, false);//default is true
+                intent.putExtra(ImageSelectActivity.FLAG_CAMERA, false);//default is true
+                intent.putExtra(ImageSelectActivity.FLAG_GALLERY, true);//default is true
+                intent.putExtra(ImageSelectActivity.FLAG_CROP, true);//default is false
                 startActivityForResult(intent, GALLERY_PICTURE);
                 Hide();
             }
@@ -53,6 +59,7 @@ public class PngToJpgConverterActivity extends AppCompatActivity {
                     savePicture(fileName, bitmap, PngToJpgConverterActivity.this);
                     Intent intent1 = new Intent(getApplicationContext(), JpgFileNameActivity.class);
                     intent1.putExtra("fileName", fileName);
+                    intent1.putExtra("filePath", filePath_);
                     //     intent1.putExtra("bitmap",bitmap);
 
                     startActivity(intent1);
@@ -70,22 +77,29 @@ public class PngToJpgConverterActivity extends AppCompatActivity {
         if (requestCode == GALLERY_PICTURE && resultCode == RESULT_OK) {
 
             if (resultCode == RESULT_OK) {
-                Uri selectedImage = data.getData();
-                if (!GetMimeType(PngToJpgConverterActivity.this, selectedImage).contains("png")) {
+                String filePaths = data.getStringExtra(ImageSelectActivity.RESULT_FILE_PATH);
+                Log.d("FORMAT", getExtension(new File(filePaths).getName()));
+             //   Uri selectedImage = data.getData();
+                if (!getExtension(new File(filePaths).getName()).contains("png")) {
                     Utils.toast(getApplicationContext(), "please select png file");
 
                 } else {
-                    Log.d("FORMAT", GetMimeType(PngToJpgConverterActivity.this, selectedImage));
-                    String[] filePathColumn = {MediaStore.Images.Media.DATA};
-                    fileName = new File(data.getData().getPath()).getName();
-                    Cursor cursor = getContentResolver().query(
-                            selectedImage, filePathColumn, null, null, null);
-                    cursor.moveToFirst();
 
-                    int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-                    String filePath = cursor.getString(columnIndex);
-                    cursor.close();
-                    bitmap = BitmapFactory.decodeFile(filePath);
+                    String[] filePathColumn = {MediaStore.Images.Media.DATA};
+                    fileName = new File(filePaths).getName();
+                    SharedPreferences sh = getSharedPreferences("JpgFiles", MODE_PRIVATE);
+                    if(sh.getBoolean(fileName,false)){
+                        fileName=fileName+"_1"  ;
+                    }
+//                    Cursor cursor = getContentResolver().query(
+//                            selectedImage, filePathColumn, null, null, null);
+//                    cursor.moveToFirst();
+//
+//                    int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+//                    String filePath = cursor.getString(columnIndex);
+//                    cursor.close();
+                    filePath_=filePaths;
+                    bitmap = BitmapFactory.decodeFile(filePaths);
                     binding.imageView4.setImageBitmap(bitmap);
                     Hide();
 
@@ -213,5 +227,19 @@ public class PngToJpgConverterActivity extends AppCompatActivity {
             binding.textView4.setVisibility(View.GONE);
         }
     }
-
+    public static String getExtension(String fileName) {
+        char ch;
+        int len;
+        if(fileName==null ||
+                (len = fileName.length())==0 ||
+                (ch = fileName.charAt(len-1))=='/' || ch=='\\' || //in the case of a directory
+                ch=='.' ) //in the case of . or ..
+            return "";
+        int dotInd = fileName.lastIndexOf('.'),
+                sepInd = Math.max(fileName.lastIndexOf('/'), fileName.lastIndexOf('\\'));
+        if( dotInd<=sepInd )
+            return "";
+        else
+            return fileName.substring(dotInd+1).toLowerCase();
+    }
 }

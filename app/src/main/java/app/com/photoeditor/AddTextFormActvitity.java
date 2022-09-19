@@ -31,6 +31,7 @@ import java.util.Calendar;
 
 import app.com.photoeditor.databinding.ActivityAddTextFormActvitityBinding;
 import id.zelory.compressor.Compressor;
+import in.mayanknagwanshi.imagepicker.ImageSelectActivity;
 import kotlinx.coroutines.Dispatchers;
 
 public class AddTextFormActvitity extends AppCompatActivity {
@@ -48,7 +49,11 @@ public class AddTextFormActvitity extends AppCompatActivity {
         binding.btnImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                Intent intent = new Intent(AddTextFormActvitity.this, ImageSelectActivity.class);
+                intent.putExtra(ImageSelectActivity.FLAG_COMPRESS, false);//default is true
+                intent.putExtra(ImageSelectActivity.FLAG_CAMERA, false);//default is true
+                intent.putExtra(ImageSelectActivity.FLAG_GALLERY, true);//default is true
+                intent.putExtra(ImageSelectActivity.FLAG_CROP, true);//default is false
                 startActivityForResult(intent, GALLERY_PICTURE);
             }
         });
@@ -106,18 +111,19 @@ public class AddTextFormActvitity extends AppCompatActivity {
         if (requestCode == GALLERY_PICTURE && resultCode == RESULT_OK) {
 
             if (resultCode == RESULT_OK) {
-                Uri selectedImage = data.getData();
+                String filePaths = data.getStringExtra(ImageSelectActivity.RESULT_FILE_PATH);
+//                Uri selectedImage = data.getData();
 
                 String[] filePathColumn = {MediaStore.Images.Media.DATA};
-                fileName = new File(data.getData().getPath()).getName();
-                Cursor cursor = getContentResolver().query(
-                        selectedImage, filePathColumn, null, null, null);
-                cursor.moveToFirst();
-
-                int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-                String filePath = cursor.getString(columnIndex);
-                cursor.close();
-                bitmap = BitmapFactory.decodeFile(filePath);
+                fileName = new File(filePaths).getName();
+//                Cursor cursor = getContentResolver().query(
+//                        selectedImage, filePathColumn, null, null, null);
+//                cursor.moveToFirst();
+//
+//                int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+//                String filePath = cursor.getString(columnIndex);
+//                cursor.close();
+                bitmap = BitmapFactory.decodeFile(filePaths);
                 binding.textView9.setText(fileName);
 
             }

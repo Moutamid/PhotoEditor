@@ -30,6 +30,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.OutputStream;
 
 import app.com.photoeditor.databinding.ActivityAddTextBinding;
 
@@ -58,6 +59,7 @@ Bitmap bitmap;
             @Override
             public void onClick(View view) {
                saveImage();
+
 //                view.setDrawingCacheEnabled(true);
 //                // this is the important code :)
 //                // Without it the view will have a dimension of 0,0 and the bitmap will be null
@@ -94,7 +96,7 @@ Bitmap bitmap;
         if(myFile.exists()){
             fileName=fileName+"_1";
             data=fileName.replaceAll(":", ".") + ".jpg";
-            myFile=new File(commonDocumentDirPath("AddTexts"),data+"_1");
+            myFile=new File(commonDocumentDirPath("AddTexts"),data);
         }
         try {
             FileOutputStream fileOutputStream = new FileOutputStream(myFile);
@@ -105,6 +107,9 @@ Bitmap bitmap;
             Utils.toast(getApplicationContext(),"Image Edited Succesfully");
         }catch (Exception ex){
           binding.tvName.setText(ex+"");
+        }
+        if(Utils.resetExternalStorageMedia(AddTextActivity.this)){
+            Utils.notifyMediaScannerService(AddTextActivity.this,myFile.getPath());
         }
 
 
@@ -152,6 +157,8 @@ Bitmap bitmap;
 
     public static File commonDocumentDirPath(String FolderName) {
         File dir = null;
+        File i=new File("path");
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             dir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)+"/"+ "PhotoEditor"+"/"+FolderName);
         } else {

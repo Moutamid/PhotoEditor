@@ -8,6 +8,7 @@
     tools:context=".GeneratePdfActivity">
 
     <androidx.cardview.widget.CardView
+        android:id="@+id/cardView3"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/_30sdp"
@@ -71,6 +72,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/_20sdp"
+                android:visibility="gone"
                 app:layout_constraintBottom_toBottomOf="@+id/imgSave"
                 app:layout_constraintStart_toEndOf="@+id/imgSave"
                 app:layout_constraintTop_toTopOf="@+id/imgSave"
@@ -84,7 +86,7 @@
                 android:layout_marginStart="@dimen/_20sdp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/imgLocation"
-                app:layout_constraintTop_toTopOf="@+id/imgLocation"
+                app:layout_constraintTop_toTopOf="@+id/imgSave"
                 app:srcCompat="@drawable/ic_baseline_share_24"
                 app:tint="@color/pdfButtonBg" />
 
@@ -100,4 +102,14 @@
                 app:tint="@color/pdfButtonBg" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
+
+    <TextView
+        android:id="@+id/textView17"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="12dp"
+        android:textColor="@color/white"
+        app:layout_constraintStart_toStartOf="@+id/cardView3"
+        app:layout_constraintTop_toBottomOf="@+id/cardView3" />
 </androidx.constraintlayout.widget.ConstraintLayout>
