@@ -33,9 +33,10 @@
 
         <androidx.cardview.widget.CardView
             android:id="@+id/contributeCard"
-            android:layout_width="128dp"
-            android:layout_height="128dp"
-            android:layout_margin="8dp"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="@dimen/_130sdp"
+            android:layout_margin="15dp"
             android:layout_marginEnd="16dp"
             android:clickable="true"
             android:elevation="12dp"
@@ -80,9 +81,10 @@
 
         <androidx.cardview.widget.CardView
             android:id="@+id/practiceCard"
-            android:layout_width="128dp"
-            android:layout_height="128dp"
-            android:layout_margin="8dp"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="@dimen/_130sdp"
+            android:layout_margin="15dp"
             android:layout_marginStart="16dp"
             android:clickable="true"
             android:elevation="12dp"
@@ -140,9 +142,10 @@
 
         <androidx.cardview.widget.CardView
             android:id="@+id/learnCard"
-            android:layout_width="128dp"
-            android:layout_height="128dp"
-            android:layout_margin="8dp"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="@dimen/_130sdp"
+            android:layout_margin="15dp"
             android:layout_marginEnd="16dp"
             android:clickable="true"
             android:elevation="12dp"
@@ -187,9 +190,10 @@
 
         <androidx.cardview.widget.CardView
             android:id="@+id/interestsCard"
-            android:layout_width="128dp"
-            android:layout_height="128dp"
-            android:layout_margin="8dp"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="@dimen/_130sdp"
+            android:layout_margin="15dp"
             android:layout_marginStart="16dp"
             android:clickable="true"
             android:elevation="12dp"

@@ -6,6 +6,7 @@ import static app.com.photoeditor.AddTextActivity.commonDocumentDirPath;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -20,6 +21,7 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -38,8 +40,9 @@ public class GeneratePdfActivity extends AppCompatActivity {
     int compressSize = 0;
     String orientation;
     String outputFolder;
-
-
+    String filePath_;
+    File newFile;
+SharedPreferences sharedPreferences;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,17 +50,27 @@ public class GeneratePdfActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
         Intent intent = getIntent();
         String FileName = intent.getStringExtra("fileName");
+        filePath_ = intent.getStringExtra("filePath");
+        newFile=new File(filePath_) ;
         getPreviousData();
-        bitmap = loadPicture(FileName);
+        if(Compress){
+
+            String filePath = newFile.getPath();
+             bitmap = BitmapFactory.decodeFile(filePath);
+        }
+        else {
+            bitmap = loadPicture(FileName);
+        }
         binding.tvFileName.setText("ImgToPdf_" + FileName);
-        binding.tvFileSize.setText(byteSizeOf(bitmap) / 1024 + "Kb");
+        binding.tvFileSize.setText(newFile.length() / 1024 + "Kb");
         java.util.Date date = new java.util.Date();
         binding.tvDate.setText(date + "");
         binding.imgSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 state = true;
-                createPDF();
+                Utils.toast(getApplicationContext(),"Pdf Generated Succesfully");
+                binding.textView17.setText("Saved in:"+filePath_);
             }
         });
         binding.imgCancel.setOnClickListener(new View.OnClickListener() {
@@ -69,7 +82,7 @@ public class GeneratePdfActivity extends AppCompatActivity {
         binding.imgShare.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                share(outputFolder);
+                share(filePath_);
             }
         });
         binding.imgLocation.setOnClickListener(new View.OnClickListener() {
@@ -85,6 +98,7 @@ public class GeneratePdfActivity extends AppCompatActivity {
     }
 
     public static int byteSizeOf(Bitmap bitmap) {
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             return bitmap.getAllocationByteCount();
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR1) {
@@ -110,19 +124,15 @@ public class GeneratePdfActivity extends AppCompatActivity {
         reqH = width * bitmap.getHeight() / bitmap.getWidth();
         Log.e("reqH", "=" + reqH);
         if (reqH < height) {
-              bitmap = Bitmap.createScaledBitmap(bitmap, reqW, reqH, true);
+            bitmap = Bitmap.createScaledBitmap(bitmap, reqW, reqH, true);
         } else {
             reqH = height;
             reqW = height * bitmap.getWidth() / bitmap.getHeight();
             Log.e("reqW", "=" + reqW);
-               bitmap = Bitmap.createScaledBitmap(bitmap, reqW, reqH, true);
+            bitmap = Bitmap.createScaledBitmap(bitmap, reqW, reqH, true);
         }
         // Compress image by decreasing quality
-        if (Compress) {
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            bitmap.compress(Bitmap.CompressFormat.JPEG, compressSize, out);
 
-        }
         //    bitmap = BitmapFactory.decodeStream(new ByteArrayInputStream(out.toByteArray()));
         //bitmap = bitmap.copy(Bitmap.Config.RGB_565, false);
         //Create an A4 sized page 595 x 842 in Postscript points.
@@ -134,17 +144,17 @@ public class GeneratePdfActivity extends AppCompatActivity {
 
         Log.e("PDF", "pdf = " + bitmap.getWidth() + "x" + bitmap.getHeight());
         if (whiteMargin) {
-            bitmap = addWhiteBorder(bitmap,5);
+            bitmap = addWhiteBorder(bitmap, 5);
         }
         canvas.drawBitmap(bitmap, 0, 0, null);
         if (pass) {
 
         }
-        if(orientation=="Vertical"){
-            bitmap=GetRotatedBitmap(bitmap,90);
+        if (orientation == "Vertical") {
+            bitmap = GetRotatedBitmap(bitmap, 90);
         }
-        if(orientation=="Horizontal") {
-            bitmap=GetRotatedBitmap(bitmap,180);
+        if (orientation == "Horizontal") {
+            bitmap = GetRotatedBitmap(bitmap, 180);
         }
 
 
@@ -155,7 +165,6 @@ public class GeneratePdfActivity extends AppCompatActivity {
         FileOutputStream fos;
         try {
             fos = new FileOutputStream(myFile);
-
             document.writeTo(fos);
             document.close();
             fos.close();
@@ -175,7 +184,7 @@ public class GeneratePdfActivity extends AppCompatActivity {
         startActivity(Intent.createChooser(sharingIntent, "Share pdf using"));
     }
 
-    private Bitmap loadPicture(String filename) {
+    public Bitmap loadPicture(String filename) {
         Bitmap b = null;
 
         try {
@@ -197,9 +206,13 @@ public class GeneratePdfActivity extends AppCompatActivity {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
+        if (Compress) {
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            Utils.toast(getApplicationContext(), compressSize + "");
+            b.compress(Bitmap.CompressFormat.JPEG, compressSize, out);
+        }
         return b;
     }
-
 
 
     public void getPreviousData() {
@@ -211,6 +224,7 @@ public class GeneratePdfActivity extends AppCompatActivity {
         orientation = intent.getStringExtra("orientation");
 
     }
+
     private Bitmap addWhiteBorder(Bitmap bmp, int borderSize) {
         Bitmap bmpWithBorder = Bitmap.createBitmap(bmp.getWidth() + borderSize * 2, bmp.getHeight() + borderSize * 2, bmp.getConfig());
         Canvas canvas = new Canvas(bmpWithBorder);
@@ -218,13 +232,21 @@ public class GeneratePdfActivity extends AppCompatActivity {
         canvas.drawBitmap(bmp, borderSize, borderSize, null);
         return bmpWithBorder;
     }
-    public static Bitmap RotateBitmap(Bitmap source, float angle)
-    {
+
+    public static Bitmap RotateBitmap(Bitmap source, float angle) {
         Matrix matrix = new Matrix();
         matrix.postRotate(angle);
         return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
     }
+
     public synchronized static Bitmap GetRotatedBitmap(Bitmap bitmap, int degrees) {
+        /*Matrix matrix = new Matrix();
+
+        matrix.postRotate(90);
+
+        Bitmap scaledBitmap = Bitmap.createScaledBitmap(bitmapOrg, width, height, true);
+
+        Bitmap rotatedBitmap = Bitmap.createBitmap(scaledBitmap, 0, 0, scaledBitmap.getWidth(), scaledBitmap.getHeight(), matrix, true);*/
         if (degrees != 0 && bitmap != null) {
             Matrix m = new Matrix();
             m.setRotate(degrees, (float) bitmap.getWidth() / 2,

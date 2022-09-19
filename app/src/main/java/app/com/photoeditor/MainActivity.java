@@ -15,13 +15,13 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.textView1).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(MainActivity.this,AddTextActivity.class));
+                startActivity(new Intent(MainActivity.this,AddTextFormActvitity.class));
             }
         });
         findViewById(R.id.image_view1).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(MainActivity.this,AddTextActivity.class));
+                startActivity(new Intent(MainActivity.this,AddTextFormActvitity.class));
             }
         });
         findViewById(R.id.textView20).setOnClickListener(new View.OnClickListener() {

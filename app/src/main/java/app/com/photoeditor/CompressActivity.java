@@ -1,6 +1,7 @@
 package app.com.photoeditor;
 
 import static app.com.photoeditor.AddTextActivity.commonDocumentDirPath;
+import static app.com.photoeditor.GeneratePdfActivity.byteSizeOf;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -16,19 +17,24 @@ import android.util.Log;
 import android.view.View;
 import android.widget.SeekBar;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 
 import app.com.photoeditor.databinding.ActivityCompressBinding;
+import id.zelory.compressor.Compressor;
+import id.zelory.compressor.constraint.Compression;
 
 public class CompressActivity extends AppCompatActivity {
-ActivityCompressBinding binding;
-String fileName;
-int qualtiy=0;
+    ActivityCompressBinding binding;
+    String fileName;
+    int qualtiy = 0;
+    Bitmap bitmap;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding=ActivityCompressBinding.inflate(getLayoutInflater());
+        binding = ActivityCompressBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         binding.imageView.setImageResource(R.drawable.ic_add_image_svgrepo_com);
         ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
@@ -36,7 +42,8 @@ int qualtiy=0;
         binding.seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                qualtiy=i;
+                qualtiy = i;
+                compress(i);
             }
 
             @Override
@@ -82,18 +89,16 @@ int qualtiy=0;
         });
 
     }
-    public void saveImage(){
-        binding.imageView.setDrawingCacheEnabled(true);
-        binding.imageView.buildDrawingCache();
-        binding.imageView.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
-        Bitmap bitmap=binding.imageView.getDrawingCache();
-        String root= Environment.getExternalStorageDirectory().getAbsolutePath();
-        File file=new File(root+"/Pictures");
-        Log.d("fileName",fileName+".jpg");
-        String data=fileName.replaceAll(":", ".") + ".jpg";
-        File myFile=new File(commonDocumentDirPath("Compressed"),data);
-        if(myFile.exists()){
-            Utils.toast(getApplicationContext(),"this image already exists");
+
+    public void saveImage() {
+
+        String root = Environment.getExternalStorageDirectory().getAbsolutePath();
+        File file = new File(root + "/Pictures");
+        Log.d("fileName", fileName + ".jpg");
+        String data = fileName.replaceAll(":", ".") + ".jpg";
+        File myFile = new File(commonDocumentDirPath("Compressed"), data);
+        if (myFile.exists()) {
+            Utils.toast(getApplicationContext(), "this image already exists");
             myFile.delete();
         }
         try {
@@ -102,13 +107,14 @@ int qualtiy=0;
             fileOutputStream.flush();
             fileOutputStream.close();
             binding.imageView.setDrawingCacheEnabled(false);
-            Utils.toast(getApplicationContext(),"Image Compressed Succesfully");
-        }catch (Exception ex){
-          //  binding.tvName.setText(ex+"");
+            Utils.toast(getApplicationContext(), "Image Compressed Succesfully");
+        } catch (Exception ex) {
+            //  binding.tvName.setText(ex+"");
         }
 
 
     }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -117,8 +123,18 @@ int qualtiy=0;
             Uri imageUri = data.getData();
             fileName = new File(data.getData().getPath()).getName();
             binding.imageView.setImageURI(imageUri);
-
+            binding.imageView.setDrawingCacheEnabled(true);
+            binding.imageView.buildDrawingCache();
+            binding.imageView.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
+            bitmap = binding.imageView.getDrawingCache();
+            binding.textView15.setText(byteSizeOf(bitmap) / 1024 + "Kb");
 
         }
     }
+    public void compress(int qualtiy){
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, qualtiy, out);
+        binding.textView15.setText(byteSizeOf(bitmap) / 1024 + "Kb");
+    }
+
 }

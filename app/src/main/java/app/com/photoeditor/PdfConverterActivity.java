@@ -1,6 +1,7 @@
 package app.com.photoeditor;
 
-import static app.com.photoeditor.PngToJpgConverterActivity.savePicture;
+
+import static app.com.photoeditor.AddTextActivity.commonDocumentDirPath;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -16,11 +17,7 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.pdf.PdfDocument;
-import android.media.Image;
+
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -35,9 +32,11 @@ import android.widget.Toast;
 
 import org.w3c.dom.Document;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,13 +48,14 @@ public class PdfConverterActivity extends AppCompatActivity {
     boolean boolean_permission;
     boolean boolean_save;
     Bitmap bitmap;
- //   List<ImageModel> bitmap;
+    //   List<ImageModel> bitmap;
 
     String fileName;
     public static final int REQUEST_PERMISSIONS = 1;
     File myfile;
     List<Bitmap> listUri;
     ImageAdapter adapter;
+    String filePath_;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,7 +63,7 @@ public class PdfConverterActivity extends AppCompatActivity {
         binding = ActivityPdfConverterBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         listUri = new ArrayList<>();
-     //   bitmap = new ArrayList<>();
+        //   bitmap = new ArrayList<>();
         fn_permission();
         binding.imageView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -76,13 +76,33 @@ public class PdfConverterActivity extends AppCompatActivity {
         binding.button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                savePicture(fileName,bitmap,PdfConverterActivity.this);
+                savePicture(fileName, bitmap, PdfConverterActivity.this);
                 Intent intent1 = new Intent(getApplicationContext(), FileNameActivity.class);
-                intent1.putExtra("fileName",fileName);
-               // intent1.putExtra("bitmap",bitmap);
+                intent1.putExtra("fileName", fileName);
+                intent1.putExtra("filePath", filePath_);
+
+
+                // intent1.putExtra("bitmap",bitmap);
                 startActivity(intent1);
 
 
+            }
+
+            void savePicture(String filename, Bitmap b, Context ctx) {
+                try {
+
+                    ObjectOutputStream oos;
+                    FileOutputStream out;// = new FileOutputStream(filename);
+                    out = ctx.openFileOutput(filename, Context.MODE_PRIVATE);
+                    oos = new ObjectOutputStream(out);
+                    b.compress(Bitmap.CompressFormat.JPEG, 50, oos);
+                    oos.close();
+                    oos.notifyAll();
+                    out.notifyAll();
+                    out.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
 //                if (boolean_save) {
 //
@@ -93,7 +113,7 @@ public class PdfConverterActivity extends AppCompatActivity {
 //                    createPDF();
 //                }
 //            }
-              });
+        });
 
     }
 
@@ -151,7 +171,7 @@ public class PdfConverterActivity extends AppCompatActivity {
 //        showDialog(myFile.toString());
     }
 
-//    @Override
+    //    @Override
 //    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 //        super.onActivityResult(requestCode, resultCode, data);
 //        if (requestCode == 7) {
@@ -202,18 +222,25 @@ public class PdfConverterActivity extends AppCompatActivity {
 //            }
 //        }
 //    }
-@Override
-protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-    super.onActivityResult(requestCode, resultCode, data);
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
 
-    if (requestCode == GALLERY_PICTURE && resultCode == RESULT_OK) {
+        if (requestCode == GALLERY_PICTURE && resultCode == RESULT_OK) {
 
-        if (resultCode == RESULT_OK) {
-            Uri selectedImage = data.getData();
+            if (resultCode == RESULT_OK) {
+                Uri selectedImage = data.getData();
 
-                Log.d("FORMAT",GetMimeType(PdfConverterActivity.this,selectedImage));
+                Log.d("FORMAT", GetMimeType(PdfConverterActivity.this, selectedImage));
                 String[] filePathColumn = {MediaStore.Images.Media.DATA};
                 fileName = new File(data.getData().getPath()).getName();
+                File chk = new File(commonDocumentDirPath("PdfGenerator").toString());
+                Log.d("FileName", chk.getPath());
+                if (chk.exists()) {
+                    Log.d("ChkFile", "exists");
+//                    fileName = new File(data.getData().getPath()).getName() + "_1";
+                }
+
                 Cursor cursor = getContentResolver().query(
                         selectedImage, filePathColumn, null, null, null);
                 cursor.moveToFirst();
@@ -223,13 +250,14 @@ protected void onActivityResult(int requestCode, int resultCode, Intent data) {
                 cursor.close();
                 bitmap = BitmapFactory.decodeFile(filePath);
                 binding.imageView4.setImageBitmap(bitmap);
+                filePath_ = filePath;
                 Hide();
 
 
-
+            }
         }
     }
-}
+
     private void fn_permission() {
         if ((ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) ||
                 (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)) {
@@ -332,7 +360,7 @@ protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         alert11.show();
     }
 
-    public  void share(String path) {
+    public void share(String path) {
         Intent sharingIntent = new Intent(Intent.ACTION_SEND);
         Uri screenshotUri = Uri.parse(path);
         sharingIntent.setType("application/pdf");
@@ -354,7 +382,7 @@ protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         return strMimeType;
     }
 
-//    private void createPDF() {
+    //    private void createPDF() {
 //
 //            Bitmap bitmaps;
 //            PdfDocument document = new PdfDocument();
@@ -412,14 +440,14 @@ protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 //
 //
 //        };
-    public void Hide(){
-        if(bitmap!=null){
+    public void Hide() {
+        if (bitmap != null) {
             binding.imageView5.setVisibility(View.GONE);
             binding.textView3.setVisibility(View.GONE);
             binding.textView4.setVisibility(View.GONE);
         }
     }
 
-    }
+}
 
 

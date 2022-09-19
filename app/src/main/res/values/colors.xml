@@ -12,5 +12,8 @@
     <color name="editColor">#f1f1f1</color>
     <color name="pdfBg">#121212</color>
     <color name="pdfButtonBg">#7e0001</color>
+    <color name="addTextFormBg">#343434</color>
+    <color name="addTextFormText">#347ab5</color>
+
 
 </resources>

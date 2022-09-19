@@ -7,6 +7,7 @@ import androidx.core.app.ActivityCompat;
 import android.Manifest;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
@@ -24,44 +25,35 @@ import android.widget.Toast;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
 
 import app.com.photoeditor.databinding.ActivityAddTextBinding;
 
 public class AddTextActivity extends AppCompatActivity {
 ActivityAddTextBinding binding;
 String fileName;
+String Date;
+String Name;
 Boolean state=false;
+Bitmap bitmap;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding=ActivityAddTextBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        binding.imageView.setImageResource(R.drawable.ic_add_image_svgrepo_com);
-        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                11);
-        binding.imageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent galleryIntent = new Intent();
-                galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
-                galleryIntent.setType("image/*");
-                startActivityForResult(galleryIntent, 2);
-            }
-        });
-        binding.tvName.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showBottomSheetDialog(1);
-            }
-        });
-        binding.tvDate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showBottomSheetDialog(2);
-            }
-        });
+        Bundle b=getIntent().getExtras();
+        fileName=b.getString("fileName","nothing");
+        Date=b.getString("Date");
+        bitmap=loadPicture(fileName);
+        binding.tvDate.setText(Date);
+        binding.tvName.setText(b.getString("Name"));
+        binding.imageView.setImageBitmap(bitmap);
         binding.button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -87,18 +79,7 @@ Boolean state=false;
 
 
     }
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == 2 && resultCode == RESULT_OK && data != null) {
-            Uri imageUri = data.getData();
-             fileName = new File(data.getData().getPath()).getName();
-            binding.imageView.setImageURI(imageUri);
-
-
-        }
-    }
     public void saveImage(){
         binding.cardView.setDrawingCacheEnabled(true);
         binding.cardView.buildDrawingCache();
@@ -108,10 +89,12 @@ Boolean state=false;
         File file=new File(root+"/Pictures");
         Log.d("fileName",fileName+".jpg");
         String data=fileName.replaceAll(":", ".") + ".jpg";
-        File myFile=new File(commonDocumentDirPath("AddTexts"),data);
+        File myFile;
+        myFile=new File(commonDocumentDirPath("AddTexts"),data);
         if(myFile.exists()){
-            Utils.toast(getApplicationContext(),"this image already exists");
-            myFile.delete();
+            fileName=fileName+"_1";
+            data=fileName.replaceAll(":", ".") + ".jpg";
+            myFile=new File(commonDocumentDirPath("AddTexts"),data+"_1");
         }
         try {
             FileOutputStream fileOutputStream = new FileOutputStream(myFile);
@@ -166,39 +149,13 @@ Boolean state=false;
         //return the bitmap
         return returnedBitmap;
     }
-    private void showBottomSheetDialog(int type) {
 
-        final BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(AddTextActivity.this);
-        bottomSheetDialog.setContentView(R.layout.bottom_sheet_edit);
-        EditText text = bottomSheetDialog.findViewById(R.id.editText);
-        Button add = bottomSheetDialog.findViewById(R.id.btnDone);
-
-        TextView title = bottomSheetDialog.findViewById(R.id.tvEditDiary);
-        bottomSheetDialog.show();
-        add.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (Utils.isEmpty(text)) {
-                    Utils.toast(AddTextActivity.this, "please add note");
-                } else {
-                    if(type==1) {
-                        binding.tvName.setText(text.getText().toString());
-                    }
-                    if(type==2){
-                        binding.tvDate.setText(text.getText().toString());
-                    }
-                    bottomSheetDialog.hide();
-                }
-            }
-        });
-
-    }
     public static File commonDocumentDirPath(String FolderName) {
         File dir = null;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            dir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS) + "/" + FolderName);
+            dir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)+"/"+ "PhotoEditor"+"/"+FolderName);
         } else {
-            dir = new File(Environment.getExternalStorageDirectory() + "/" + FolderName);
+            dir = new File(Environment.getExternalStorageDirectory()+"/"+R.string.app_name+"/"+ FolderName);
         }
 
         // Make sure the path directory exists.
@@ -210,5 +167,29 @@ Boolean state=false;
             }
         }
         return dir;
+    }
+    public Bitmap loadPicture(String filename) {
+        Bitmap b = null;
+
+        try {
+            FileInputStream fis = openFileInput(filename);
+            ObjectInputStream ois = null;
+            try {
+                ois = new ObjectInputStream(fis);
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+            b = BitmapFactory.decodeStream(ois);
+            try {
+                ois.close();
+                fis.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        return b;
     }
 }

@@ -44,25 +44,25 @@ public class PngToJpgConverterActivity extends AppCompatActivity {
                 Hide();
             }
         });
-       binding.button.setOnClickListener(new View.OnClickListener() {
-           @Override
-           public void onClick(View view) {
-               if(bitmap==null){
-                   Utils.toast(getApplicationContext(),"please Add Image");
-               }
-               else{
-                   savePicture(fileName,bitmap,PngToJpgConverterActivity.this);
-                   Intent intent1 = new Intent(getApplicationContext(), JpgFileNameActivity.class);
-                   intent1.putExtra("fileName",fileName);
-              //     intent1.putExtra("bitmap",bitmap);
+        binding.button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (bitmap == null) {
+                    Utils.toast(getApplicationContext(), "please Add Image");
+                } else {
+                    savePicture(fileName, bitmap, PngToJpgConverterActivity.this);
+                    Intent intent1 = new Intent(getApplicationContext(), JpgFileNameActivity.class);
+                    intent1.putExtra("fileName", fileName);
+                    //     intent1.putExtra("bitmap",bitmap);
 
-                   startActivity(intent1);
-                   //  saveImage();
-               }
-           }
-       });
+                    startActivity(intent1);
+                    //  saveImage();
+                }
+            }
+        });
 
     }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -71,13 +71,11 @@ public class PngToJpgConverterActivity extends AppCompatActivity {
 
             if (resultCode == RESULT_OK) {
                 Uri selectedImage = data.getData();
-                if(!GetMimeType(PngToJpgConverterActivity.this,selectedImage).contains("png")){
-                    Utils.toast(getApplicationContext(),"please select png file");
+                if (!GetMimeType(PngToJpgConverterActivity.this, selectedImage).contains("png")) {
+                    Utils.toast(getApplicationContext(), "please select png file");
 
-                }
-
-                else{
-                    Log.d("FORMAT",GetMimeType(PngToJpgConverterActivity.this,selectedImage));
+                } else {
+                    Log.d("FORMAT", GetMimeType(PngToJpgConverterActivity.this, selectedImage));
                     String[] filePathColumn = {MediaStore.Images.Media.DATA};
                     fileName = new File(data.getData().getPath()).getName();
                     Cursor cursor = getContentResolver().query(
@@ -96,32 +94,32 @@ public class PngToJpgConverterActivity extends AppCompatActivity {
             }
         }
     }
-    public  String GetMimeType(Context context, Uri uriImage)
-    {
+
+    public String GetMimeType(Context context, Uri uriImage) {
         String strMimeType = null;
 
         Cursor cursor = context.getContentResolver().query(uriImage,
-                new String[] { MediaStore.MediaColumns.MIME_TYPE },
+                new String[]{MediaStore.MediaColumns.MIME_TYPE},
                 null, null, null);
 
-        if (cursor != null && cursor.moveToNext())
-        {
+        if (cursor != null && cursor.moveToNext()) {
             strMimeType = cursor.getString(0);
         }
 
         return strMimeType;
     }
-    public void saveImage(){
+
+    public void saveImage() {
         binding.imageView.setDrawingCacheEnabled(true);
         binding.imageView.buildDrawingCache();
         binding.imageView.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_AUTO);
-        Bitmap bitmap=binding.imageView.getDrawingCache();
-        String root= Environment.getExternalStorageDirectory().getAbsolutePath();
-        File file=new File(root+"/Pictures");
-        Log.d("fileName",fileName+".jpg");
-        File myFile=new File(commonDocumentDirPath("PngToJpg"),fileName+".jpg");
-        if(myFile.exists()){
-            Utils.toast(getApplicationContext(),"this image already exists");
+        Bitmap bitmap = binding.imageView.getDrawingCache();
+        String root = Environment.getExternalStorageDirectory().getAbsolutePath();
+        File file = new File(root + "/Pictures");
+        Log.d("fileName", fileName + ".jpg");
+        File myFile = new File(commonDocumentDirPath("PngToJpg"), fileName + ".jpg");
+        if (myFile.exists()) {
+            Utils.toast(getApplicationContext(), "this image already exists");
             myFile.delete();
         }
         try {
@@ -131,13 +129,14 @@ public class PngToJpgConverterActivity extends AppCompatActivity {
             fileOutputStream.close();
             showDialog(myFile.toString());
             binding.imageView.setDrawingCacheEnabled(false);
-            Utils.toast(getApplicationContext(),"Image Converted Succesfully");
-        }catch (Exception ex){
-            Toast.makeText(this, ex+"", Toast.LENGTH_SHORT).show();
+            Utils.toast(getApplicationContext(), "Image Converted Succesfully");
+        } catch (Exception ex) {
+            Toast.makeText(this, ex + "", Toast.LENGTH_SHORT).show();
         }
 
 
     }
+
     public File commonDocumentDirPath(String FolderName) {
         File dir = null;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -190,14 +189,14 @@ public class PngToJpgConverterActivity extends AppCompatActivity {
         sharingIntent.putExtra(Intent.EXTRA_STREAM, screenshotUri);
         startActivity(Intent.createChooser(sharingIntent, "Share pdf using"));
     }
-     static void savePicture(String filename, Bitmap b, Context ctx){
+
+     void savePicture(String filename, Bitmap b, Context ctx) {
         try {
             ObjectOutputStream oos;
             FileOutputStream out;// = new FileOutputStream(filename);
             out = ctx.openFileOutput(filename, Context.MODE_PRIVATE);
             oos = new ObjectOutputStream(out);
-            b.compress(Bitmap.CompressFormat.PNG, 100, oos);
-
+            b.compress(Bitmap.CompressFormat.JPEG, 100, oos);
             oos.close();
             oos.notifyAll();
             out.notifyAll();
@@ -206,8 +205,9 @@ public class PngToJpgConverterActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
-    public void Hide(){
-        if(bitmap!=null){
+
+    public void Hide() {
+        if (bitmap != null) {
             binding.imageView5.setVisibility(View.GONE);
             binding.textView3.setVisibility(View.GONE);
             binding.textView4.setVisibility(View.GONE);

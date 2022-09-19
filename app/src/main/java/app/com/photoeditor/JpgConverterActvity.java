@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 
 import app.com.photoeditor.databinding.ActivityGeneratePdfBinding;
+import id.zelory.compressor.Compressor;
 
 public class JpgConverterActvity extends AppCompatActivity {
     ActivityGeneratePdfBinding binding;
